@@ -1,0 +1,12 @@
+server:
+  port: 3001
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5430/digital-wallet
+    username: admin
+    password: secret
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
