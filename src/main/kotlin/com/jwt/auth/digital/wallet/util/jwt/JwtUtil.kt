@@ -1,18 +1,21 @@
 package com.jwt.auth.digital.wallet.util.jwt
 
-import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.io.Decoders
+import io.jsonwebtoken.security.Keys
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import java.util.*
 import java.util.function.Function
+import javax.crypto.SecretKey
 
 @Component
 class JwtUtil {
-    private val secret = "jwtsecret"
+    val secret: String = "eW91ckxvbmdlclNlY3JldFBsYWNlaG9sZGVyc2RkZmVlZmV3d3d3d2RxZGZxd2RxNDM1MzU0dDY0NnF3MjUxNXdkc3g="
 
-    fun extractUsername(token: String?): String {
+    fun extractUsername(token: String?): String? {
         return extractClaim(token) { obj: Claims -> obj.subject }
     }
 
@@ -26,7 +29,12 @@ class JwtUtil {
     }
 
     private fun extractAllClaims(token: String?): Claims {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).body
+        return Jwts
+            .parserBuilder()
+            .setSigningKey(getSignKey())
+            .build()
+            .parseClaimsJws(token)
+            .body
     }
 
     private fun isTokenExpired(token: String?): Boolean {
@@ -38,10 +46,18 @@ class JwtUtil {
         return createToken(claims, username)
     }
 
-    private fun createToken(claims: Map<String, Any>, subject: String): String {
-        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(Date(System.currentTimeMillis()))
-            .setExpiration(Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-            .signWith(SignatureAlgorithm.HS256, secret).compact()
+    private fun createToken(claims: Map<String, Any>, userName: String): String {
+        return Jwts.builder()
+            .setClaims(claims)
+            .setSubject(userName)
+            .setIssuedAt(Date(System.currentTimeMillis()))
+            .setExpiration(Date(System.currentTimeMillis() + 1000 * 60 * 30))
+            .signWith(getSignKey(), SignatureAlgorithm.HS256).compact()
+    }
+
+    private fun getSignKey(): SecretKey {
+        val keyBytes = Decoders.BASE64.decode(secret)
+        return Keys.hmacShaKeyFor(keyBytes)
     }
 
     fun validateToken(token: String?, userDetails: UserDetails): Boolean {

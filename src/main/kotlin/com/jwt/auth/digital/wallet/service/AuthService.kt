@@ -54,7 +54,7 @@ class AuthService(
         } catch (e: AuthenticationException) {
             throw UsernameOrPasswordInvalidException("Authentication Failed")
         }
-        return jwtUtil.generateToken(username)
+        return jwtUtil.generateToken(username).trim('"')
     }
 
 
