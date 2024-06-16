@@ -1,8 +1,11 @@
 package com.jwt.auth.digital.wallet.exception
 
+import com.jwt.auth.digital.wallet.constants.ErrorCodes.ERROR_001
+import com.jwt.auth.digital.wallet.constants.ErrorCodes.ERROR_002
+import com.jwt.auth.digital.wallet.constants.ErrorCodes.ERROR_003
+import com.jwt.auth.digital.wallet.constants.ErrorMessages
 import com.jwt.auth.digital.wallet.dtos.response.FormattedErrorResponse
 import com.jwt.auth.digital.wallet.dtos.response.JwtVerifyFailureErrorResponse
-import com.jwt.auth.digital.wallet.dtos.response.OkResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -16,8 +19,8 @@ class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleBadRequestExceptions(ex: UsernameAlreadyExistsException): ResponseEntity<FormattedErrorResponse> {
         val errorResponse = FormattedErrorResponse(
-            "001",
-            "Bad Request",
+            ERROR_001,
+            ErrorMessages.BAD_REQUEST,
             ex.message?: "Username Already Exists"
         )
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
@@ -27,8 +30,8 @@ class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleJwtExceptions(ex: JwtVerificationFailedException): ResponseEntity<JwtVerifyFailureErrorResponse> {
         val errorResponse = JwtVerifyFailureErrorResponse(
-            errorCode = "002",
-            errorMessage = "Bad Request",
+            errorCode = ERROR_002,
+            errorMessage = ErrorMessages.BAD_REQUEST,
             cause = ex.message?: "Jwt Verification Failed"
         )
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
@@ -38,11 +41,10 @@ class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleJwtSignException(ex: JwtSigningKeyException): ResponseEntity<FormattedErrorResponse> {
         val errorResponse = FormattedErrorResponse(
-            errorMessage = "Bad Request",
-            errorCode = "003",
+            errorMessage = ErrorMessages.BAD_REQUEST,
+            errorCode = ERROR_003,
             cause = ex.message?: "Jwt Signing Key is Weak"
         )
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
     }
-
 }

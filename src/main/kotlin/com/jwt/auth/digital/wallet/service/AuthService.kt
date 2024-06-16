@@ -19,8 +19,7 @@ import org.springframework.stereotype.Service
 class AuthService(
     private val usersRepository: UsersRepository,
     private val bCrypt: BCryptPasswordEncoder,
-    private val authenticationManager: AuthenticationManager,
-    private val jwtUtil: JwtUtil
+    private val authenticationManager: AuthenticationManager
 ) {
 
     @Transactional
@@ -54,7 +53,7 @@ class AuthService(
         } catch (e: AuthenticationException) {
             throw UsernameOrPasswordInvalidException("Authentication Failed")
         }
-        return jwtUtil.generateToken(username).trim('"')
+        return JwtUtil.generateToken(username)
     }
 
 
