@@ -4,7 +4,6 @@ import com.jwt.auth.digital.wallet.dtos.request.AuthSignUpRequest
 import com.jwt.auth.digital.wallet.entity.Users
 
 class DtoToEntityMapper {
-
     companion object {
         fun dtoToEntityAuthSignUpRequest(authSignUpRequest: AuthSignUpRequest): Users {
             return Users(
