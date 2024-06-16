@@ -20,7 +20,7 @@ import javax.crypto.SecretKey
 class JwtUtil {
 
     companion object {
-        private const val SECRET: String = "eW91ckxvbmdlclNlY3JldFBsYWNlaG9sZGVyc2RkZmVlZmV3d3d3d2RxZGZxd2RxNDM1MzU0dDY0NnF3MjUxNXdkc3g="
+        private const val SECRET = "eW91ckxvbmdlclNlY3JldFBsYWNlaG9sZGVyc2RkZmVlZmV3d3d3d2RxZGZxd2RxNDM1MzU0dDY0NnF3MjUxNXdkc3g="
         fun extractUsername(token: String?): String? {
             return extractClaim(token) { obj: Claims -> obj.subject }
         }
