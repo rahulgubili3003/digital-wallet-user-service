@@ -1,15 +1,23 @@
 package com.jwt.auth.digital.wallet.util.jwt
 
+import com.jwt.auth.digital.wallet.exception.JwtSigningKeyException
+import com.jwt.auth.digital.wallet.exception.JwtVerificationFailedException
 import io.jsonwebtoken.Claims
+import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.MalformedJwtException
 import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.UnsupportedJwtException
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
+import io.jsonwebtoken.security.SignatureException
+import io.jsonwebtoken.security.WeakKeyException
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import java.util.*
 import java.util.function.Function
 import javax.crypto.SecretKey
+import kotlin.jvm.Throws
 
 @Component
 class JwtUtil {
@@ -29,12 +37,22 @@ class JwtUtil {
     }
 
     private fun extractAllClaims(token: String?): Claims {
-        return Jwts
-            .parserBuilder()
-            .setSigningKey(getSignKey())
-            .build()
-            .parseClaimsJws(token)
-            .body
+        try {
+            return Jwts
+                .parserBuilder()
+                .setSigningKey(getSignKey())
+                .build()
+                .parseClaimsJws(token)
+                .body
+        } catch (ex: SignatureException) {
+            throw JwtVerificationFailedException("Jwt Signature Invalid")
+        } catch (ex: ExpiredJwtException) {
+            throw JwtVerificationFailedException("Jwt Token Expired")
+        } catch (ex: MalformedJwtException) {
+            throw JwtVerificationFailedException("Malformed Jwt Token")
+        } catch (ex: UnsupportedJwtException) {
+            throw JwtVerificationFailedException("Jwt Token Unsupported")
+        }
     }
 
     private fun isTokenExpired(token: String?): Boolean {
@@ -55,9 +73,14 @@ class JwtUtil {
             .signWith(getSignKey(), SignatureAlgorithm.HS256).compact()
     }
 
+    @Throws(WeakKeyException::class)
     private fun getSignKey(): SecretKey {
-        val keyBytes = Decoders.BASE64.decode(secret)
-        return Keys.hmacShaKeyFor(keyBytes)
+        try {
+            val keyBytes = Decoders.BASE64.decode(secret)
+            return Keys.hmacShaKeyFor(keyBytes)
+        } catch (ex: WeakKeyException) {
+            throw JwtSigningKeyException("Weak Signing Key for JWT")
+        }
     }
 
     fun validateToken(token: String?, userDetails: UserDetails): Boolean {

@@ -17,15 +17,9 @@ class JwtController(private val jwtUtil: JwtUtil, private val userDetailsService
 
     @PostMapping("/validate-jwt")
     fun validateJwt(@RequestBody jwtToken: String): ResponseEntity<OkResponse> {
-
-        val username: String? = jwtUtil.extractUsername(jwtToken)
-        if (username == null) {
-            throw InvalidUsernameException("Username Invalid")
-        }
+        val username: String = jwtUtil.extractUsername(jwtToken) ?: throw InvalidUsernameException("Username Invalid")
         val userDetails = userDetailsService.loadUserByUsername(username)
-        val char = '"'
-        val trim = jwtToken.trim(char)
-        val result = jwtUtil.validateToken(trim, userDetails)
+        val result = jwtUtil.validateToken(jwtToken, userDetails)
         return ResponseEntity.ok(OkResponse(data = result))
     }
 }
